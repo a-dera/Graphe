@@ -1,0 +1,12 @@
+##################################################
+#      Importation des Bibliotheques et fonctions:
+from tkinter import *
+from PIL import ImageGrab
+from tkinter import PhotoImage
+from Euler import *
+from Hamilton import *
+from maxflow import *
+from GrapheOrienter import *
+from GrapheNonOrienter import *
+import tkinter as tk
+from tkinter import ttk
