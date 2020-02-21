@@ -58,9 +58,6 @@ if __name__ == '__main__':
 		pass
 
 	def donothing():
-		#filewin = Toplevel(root)
-		#button = Button(filewin, text="Do nothing button")
-		#button.pack()
 		pass
 
 	def graphe_oriente():
@@ -78,7 +75,7 @@ if __name__ == '__main__':
 	def Auteur():
 		a_propos="""
 	Ce programme a été conçu par
-	 Amédée DERA, développeur FullStack
+	 Amédée DERA, développeur Python
 		"""
 		
 		
@@ -104,8 +101,8 @@ if __name__ == '__main__':
 
 	def Description():
 		a_propos="""
-	Ce logiciel a ete creer dans le cadre
-	de traitement de graphe.
+	Ce programme a ete creer dans le cadre
+	du traitement des graphes.
 		"""
 		fen.wm_attributes("-disable",True)
 		fen.toplevel_dialog=tk.Toplevel(fen)
@@ -128,7 +125,7 @@ if __name__ == '__main__':
 		fen.yes_button.grid(row=2)
 
 	def Version():
-		a_propos="""Version 1.2.0"""
+		a_propos="""Version 1.3.0"""
 		
 		
 		fen.wm_attributes("-disable",True)
