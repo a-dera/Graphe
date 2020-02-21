@@ -15,6 +15,7 @@ class Euler:
 
 	# function to add an edge to graph 
 	def addEdge(self,u,v): 
+		# alternatives
 		self.graph[u].append(v) 
 		self.graph[v].append(u) 
 
