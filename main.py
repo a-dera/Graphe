@@ -1,15 +1,14 @@
 ##################################################
 #      Importation des Bibliotheques et fonctions:
 from tkinter import *
-from PIL import ImageGrab
+from random import choice
+#from PIL import ImageGrab
 from tkinter import PhotoImage
 from Euler import *
 from Hamilton import *
 from maxflow import *
 from GrapheOrienter import *
 from GrapheNonOrienter import *
-import tkinter as tk
-from tkinter import ttk
 
 # -              Programme Principale           - #
 # /////////////////////////////////////////////// #
@@ -21,43 +20,48 @@ if __name__ == '__main__':
 	fen =Tk()
 	width=fen.winfo_screenwidth()
 	height=fen.winfo_screenheight()
-	largeure=900
-	hauteure=500
+	largeure=1200
+	hauteure=600
 	x=(width/2)-(largeure/2)
 	y=(height/2)-(hauteure/2)
-	graphe =Canvas(fen, width =largeure, height =hauteure, bg="light yellow")
+	graphe =Canvas(fen, width =largeure, height =hauteure, bg ="white")
 	fen.geometry('{}x{}+{}+{}'.format(largeure,hauteure,int(x),int(y)))
-	fen.wm_title("Graphe Tracer")
+	fen.wm_title("Programme de tracer et de traitement de graphe")
 	graphe.pack(side =TOP, padx =5, pady =5)
-	fen.resizable(False,False)
+	fen.resizable(True,True)
 	icon=PhotoImage(file='img/img.png')
 	fen.tk.call('wm','iconphoto',fen._w,icon)
-	photo = PhotoImage(file="img/img.png",width=largeure,height=hauteure)
-	graphe.create_image(300, 90, anchor=NW, image=photo)
+	photo = PhotoImage(file="img/img.png")
+	#graphe.create_image(10, 10, anchor=NW, image=photo)
 	
 	
 
 	def menu():
-		menubar = Menu(fen)
-		filemenu = Menu(menubar, tearoff = 0)
-		filemenu.add_command(label="Graphe Oriente", command = graphe_oriente)
-		filemenu.add_command(label="Graphe Non Oriente", command = graphe_non_oriente)
-		filemenu.add_separator()
-		filemenu.add_command(label = "Quitter", command = fen.destroy)
-		menubar.add_cascade(label = "Graphe", menu = filemenu)
-
-		filemenu = Menu(menubar, tearoff = 0)
-		filemenu.add_command(label = "Auteur", command = Auteur)
-		filemenu.add_command(label="Description", command = Description)
-		filemenu.add_command(label="Version", command = Version)
-		menubar.add_cascade(label = "A Propos", menu = filemenu)
+		#photo = PhotoImage(file="img/img.png")
+		#canvas = Canvas(fen,width=photo.width(), height=photo.height())
+		#canvas.create_image(0, 0, anchor=NW, image=photo)
+		#canvas.pack()
+		#menubar = Menu(fen)
 		
+		#filemenu.add_command(label="Graphe Oriente", command = graphe_oriente)
+		#filemenu.add_command(label="Graphe Non Oriente", command = graphe_non_oriente)
+		titre = Label(graphe, text="Theories des graphes")
+		titre.config(font =("Courier", 14))
+		titre.place(x=490, y=50)
 
-		fen.config(menu = menubar)
+		go = Button(graphe, text="Graphe Orienté", command=graphe_oriente)
+		go.place(x=100,y=500)
+		gno = Button(graphe, text="Graphe non Orienté", command=graphe_non_oriente)
+		gno.place(x=1000,y=500)
+
+		#fen.config(menu = menubar)
 		fen.mainloop()
 		pass
 
 	def donothing():
+		#filewin = Toplevel(root)
+		#button = Button(filewin, text="Do nothing button")
+		#button.pack()
 		pass
 
 	def graphe_oriente():
@@ -72,86 +76,8 @@ if __name__ == '__main__':
 		app.mainloop()
 		fen.mainloop()
 
-	def Auteur():
-		a_propos="""
-	Ce programme a été conçu par
-	 Amédée DERA, développeur Python
-		"""
-		
-		
-		fen.wm_attributes("-disable",True)
-		fen.toplevel_dialog=tk.Toplevel(fen)
-		fen.toplevel_dialog.minsize(502,210)
-		fen.toplevel_dialog.wm_title("Auteur")
 
-		width=fen.toplevel_dialog.winfo_screenwidth()
-		height=fen.toplevel_dialog.winfo_screenheight()
-		largeure=502
-		hauteure=210
-		x=(width/2)-(largeure/2)
-		y=(height/2)-(hauteure/2)
-		fen.toplevel_dialog.geometry('{}x{}+{}+{}'.format(largeure,hauteure,int(x),int(y)))
-		
-		fen.toplevel_dialog.transient(fen)
-		fen.toplevel_dialog.protocol("WM_DELETE_WINDOW", Close_Toplevel)
-		fen.label=tk.Label(fen.toplevel_dialog, text=a_propos,justify='left',font='Century 13 bold')
-		fen.label.grid(row=1,padx =5, pady =5)
-		fen.yes_button=ttk.Button(fen.toplevel_dialog,text='Ok',width=82,command=Close_Toplevel)
-		fen.yes_button.grid(row=2)
-
-	def Description():
-		a_propos="""
-	Ce programme a ete creer dans le cadre
-	du traitement des graphes.
-		"""
-		fen.wm_attributes("-disable",True)
-		fen.toplevel_dialog=tk.Toplevel(fen)
-		fen.toplevel_dialog.minsize(502,126)
-		fen.toplevel_dialog.wm_title("Description")
-
-		width=fen.toplevel_dialog.winfo_screenwidth()
-		height=fen.toplevel_dialog.winfo_screenheight()
-		largeure=502
-		hauteure=126
-		x=(width/2)-(largeure/2)
-		y=(height/2)-(hauteure/2)
-		fen.toplevel_dialog.geometry('{}x{}+{}+{}'.format(largeure,hauteure,int(x),int(y)))
-		
-		fen.toplevel_dialog.transient(fen)
-		fen.toplevel_dialog.protocol("WM_DELETE_WINDOW", Close_Toplevel)
-		fen.label=tk.Label(fen.toplevel_dialog, text=a_propos,justify='left',font='Century 13 bold')
-		fen.label.grid(row=1,padx =5, pady =5)
-		fen.yes_button=ttk.Button(fen.toplevel_dialog,text='Ok',width=82,command=Close_Toplevel)
-		fen.yes_button.grid(row=2)
-
-	def Version():
-		a_propos="""Version 1.3.0"""
-		
-		
-		fen.wm_attributes("-disable",True)
-		fen.toplevel_dialog=tk.Toplevel(fen)
-		fen.toplevel_dialog.minsize(300,64)
-		fen.toplevel_dialog.wm_title("Version")
-
-		width=fen.toplevel_dialog.winfo_screenwidth()
-		height=fen.toplevel_dialog.winfo_screenheight()
-		largeure=300
-		hauteure=64
-		x=(width/2)-(largeure/2)
-		y=(height/2)-(hauteure/2)
-		fen.toplevel_dialog.geometry('{}x{}+{}+{}'.format(largeure,hauteure,int(x),int(y)))
-		
-		fen.toplevel_dialog.transient(fen)
-		fen.toplevel_dialog.protocol("WM_DELETE_WINDOW", Close_Toplevel)
-		fen.label=tk.Label(fen.toplevel_dialog, text=a_propos,justify='left',font='Century 13 bold')
-		fen.label.grid(row=1,padx =5, pady =5)
-		fen.yes_button=ttk.Button(fen.toplevel_dialog,text='Ok',width=48,command=Close_Toplevel)
-		fen.yes_button.grid(row=4)
-	
-	def Close_Toplevel ():
-		fen.wm_attributes("-disable",False)
-		fen.toplevel_dialog.destroy()
-		fen.deiconify()
 
 	menu()
 	fen.mainloop()
+#prece sep    succ trait

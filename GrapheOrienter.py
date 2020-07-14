@@ -2,7 +2,8 @@
 #      Importation des Bibliotheques et fonctions:
 
 from tkinter import *
-from PIL import ImageGrab
+from random import choice
+#from PIL import ImageGrab
 from tkinter import PhotoImage
 from Euler import *
 from Hamilton import *
@@ -10,6 +11,8 @@ from maxflow import *
 import tkinter as tk
 from tkinter import ttk
 from main import *
+#from Sup import *
+from GrapheProfond import *
 
 # -            Fenetre Graphe Orienter          - #
 # /////////////////////////////////////////////// #
@@ -26,32 +29,34 @@ class GrapheOriente(Tk):
 
     width=self.winfo_screenwidth()
     height=self.winfo_screenheight()
-    self.largeure=900
-    self.hauteure=500
+    self.largeure=1200
+    self.hauteure=600
     self.x=(width/2)-(self.largeure/2)
     self.y=(height/2)-(self.hauteure/2)
 
     #initialisation du canvas
-    self.graphe =Canvas(self, width =self.largeure, height =self.hauteure, bg ="light yellow")
+    self.graphe =Canvas(self, width =self.largeure, height =self.hauteure, bg ="white")
     self.geometry('{}x{}+{}+{}'.format(self.largeure,self.hauteure,int(self.x),int(self.y)))
     self.resizable(False,False)
     self.wm_title('Graphe Oriente')
     self.graphe.pack(side =TOP, padx =5, pady =5)
     
     #evenement declancher par les clic de la sourie
-    self.bind("<Double-Button-1>", self.sommet)
+    self.bind("<Button-1>", self.sommet)
     self.bind("<Button-3>", self.arc)
+    
 
     #menu de la fenetre
     menubar = Menu(self)
     filemenu = Menu(menubar, tearoff = 0)
     filemenu.add_separator()
     filemenu.add_command(label = "Quitter ?", command = self.destroy)
-    filemenu.add_command(label = "Sauvegarder", command = self.save)
-    menubar.add_cascade(label = "Fichier", menu = filemenu)
+    #filemenu.add_command(label = "Sauvegarder", command = self.save)
+    menubar.add_cascade(label = "Terminer", menu = filemenu)
     
     filemenu = Menu(menubar, tearoff = 0)
     filemenu.add_separator()
+    # filemenu.add_command(label = "Graphe profond ", command=self.dfs)
     filemenu.add_command(label = "Ordre du graphe", command=self.ordre_graphe)
     filemenu.add_command(label = "Degre du sommet", command=self.degres_sommet)
     filemenu.add_command(label = "Matrice d'adjacence", command=self.matriceAdj)
@@ -69,12 +74,8 @@ class GrapheOriente(Tk):
     filemenu.add_command(label = "Tout effacer ?", command =self.delete)
     menubar.add_cascade(label = "Effacer", menu = filemenu)
     filemenu = Menu(menubar, tearoff = 0)
-
-    filemenu = Menu(menubar, tearoff = 0)
-    filemenu.add_command(label = "Aide", command =self.aide)
-    menubar.add_cascade(label = "Aide", menu = filemenu)
-    filemenu = Menu(menubar, tearoff = 0)
-    
+    filemenu.add_separator()
+    # menubar.add_command(label = "Supprimer un point", command =self.deletePoint)
     self.config(menu = menubar)
 
     #variable globale
@@ -104,6 +105,37 @@ class GrapheOriente(Tk):
     self.var=StringVar()
     self.entier=int()
     pass
+
+  def deletePoint(self, event=None):
+
+    self.wm_attributes("-disable",True)
+    self.toplevel_dialog=tk.Toplevel(self)
+    self.toplevel_dialog.minsize(300,100)
+
+    self.toplevel_dialog.transient(self)
+    self.toplevel_dialog.protocol("WM_DELETE_WINDOW", self.Close_Toplevel)
+
+    self.label=tk.Label(self.toplevel_dialog, text='Entrer le sommet : ')
+    self.label.pack(side='top')
+    self.valeur=tk.Entry(self.toplevel_dialog)
+    self.valeur.pack(side='top')
+
+    self.yes_button=ttk.Button(self.toplevel_dialog,text='Retour',width=25,command=self.Close_Toplevel)
+    self.yes_button.pack(side='right',fill='x',expand=True)
+    self.yes_button=ttk.Button(self.toplevel_dialog,text='Valider',width=25,command=self.Close_del)
+    self.yes_button.pack(side='right',fill='x',expand=True)
+      
+  def Close_del (self,event=None):
+    #element = self.temp[0][0]
+    #self.point.append([event.x,event.y,self.sommet,self.numero,self.i])
+    i = self.toplevel_dialog
+    #self.point.remove([self.i])
+    #self.sommets.remove(self.i)
+    self.graphe.delete(self.sommet, self.numero, self.i)
+    #self.i-=1
+
+  
+
   # fonction permettant de fermer la fenetre fille
   def Close_Toplevel (self):
     self.compt=int()
@@ -113,7 +145,7 @@ class GrapheOriente(Tk):
     self.deiconify()
   
   #fenetre permettant de fermet la fenetre fille de sauvegarde  
-  def Close_Save (self,event=None):
+  """def Close_Save (self,event=None):
   	
   	if len(self.var.get())>0:
   		x=self.graphe.winfo_rootx()
@@ -132,79 +164,38 @@ class GrapheOriente(Tk):
   	self.wm_attributes("-disable",False)
   	self.toplevel_dialog.destroy()
   	self.deiconify()
-
-  def aide(self):
-    self.wm_attributes("-disable",True)
-    self.toplevel_dialog=tk.Toplevel(self)
-    self.toplevel_dialog.minsize(600,150)
-    self.toplevel_dialog.wm_title("Aide")
-    width=self.toplevel_dialog.winfo_screenwidth()
-    height=self.toplevel_dialog.winfo_screenheight()
-    largeure=600
-    hauteure=150
-    x=(width/2)-(largeure/2)
-    y=(height/2)-(hauteure/2)
-    self.toplevel_dialog.geometry('{}x{}+{}+{}'.format(largeure,hauteure,int(x),int(y)))
-
-    self.toplevel_dialog.transient(self)
-    self.toplevel_dialog.protocol("WM_DELETE_WINDOW", self.Close_Toplevel)
-    self.toplevel_dialog.bind("<Return>", self.Close_Toplevel)
-    self.toplevel_dialog.focus()
-    aide="""
-Tracer un sommet: Double clic
-Tracer un arc: clic gauche sur chaque sommet
-"""
-    self.label=tk.Label(self.toplevel_dialog, text=aide,justify='left',font='Century 13 bold')
-    self.label.pack(side='top')
-
-    
-    self.yes_button=ttk.Button(self.toplevel_dialog,text='Retour',width=25,command=self.Close_Toplevel)
-    self.yes_button.pack(side='right',fill='x',expand=True)
+  
   #fonction de sauvegarde du graphe dessiner	
   def save(self):
   	self.wm_attributes("-disable",True)
   	self.toplevel_dialog=tk.Toplevel(self)
   	self.toplevel_dialog.minsize(300,100)
-  	self.toplevel_dialog.wm_title("Sauvegarder")
-  	width=self.toplevel_dialog.winfo_screenwidth()
-  	height=self.toplevel_dialog.winfo_screenheight()
 
   	self.toplevel_dialog.transient(self)
   	self.toplevel_dialog.protocol("WM_DELETE_WINDOW", self.Close_Toplevel)
-  	self.toplevel_dialog.bind("<Return>", self.Close_Save)
-  	self.toplevel_dialog.focus()
 
   	self.label=tk.Label(self.toplevel_dialog, text='Entrer le nom de limage: ')
   	self.label.pack(side='left')
   	self.var=tk.Entry(self.toplevel_dialog)
   	self.var.pack(side='left')
-  	self.var.bind("<Return>", self.Close_Save)
-  	self.var.bind("<Escape>", self.Close_Toplevel)
-  	self.var.focus_set()
   	
   	self.yes_button=ttk.Button(self.toplevel_dialog,text='Retour',width=25,command=self.Close_Toplevel)
   	self.yes_button.pack(side='right',fill='x',expand=True)
   	self.yes_button=ttk.Button(self.toplevel_dialog,text='Valider',width=25,command=self.Close_Save)
   	self.yes_button.pack(side='right',fill='x',expand=True)
   	
-
+  	for i in range(3):
+  		self.toplevel_dialog_label3=tk.Label(self.toplevel_dialog, text='\n')
+  		self.toplevel_dialog_label3.pack()
+"""
   # fonction permettant de detecter si le graphe est eulerien
   def euler(self):
   	self.wm_attributes("-disable",True)
   	self.toplevel_dialog=tk.Toplevel(self)
-  	self.toplevel_dialog.minsize(600,100)
-  	self.toplevel_dialog.wm_title("Graphe eulerien")
-  	width=self.toplevel_dialog.winfo_screenwidth()
-  	height=self.toplevel_dialog.winfo_screenheight()
-  	largeure=600
-  	hauteure=100
-  	x=(width/2)-(largeure/2)
-  	y=(height/2)-(hauteure/2)
-  	self.toplevel_dialog.geometry('{}x{}+{}+{}'.format(largeure,hauteure,int(x),int(y)))
+  	self.toplevel_dialog.minsize(300,100)
 
   	self.toplevel_dialog.transient(self)
   	self.toplevel_dialog.protocol("WM_DELETE_WINDOW", self.Close_Toplevel)
-  	self.toplevel_dialog.bind("<Return>", self.Close_Toplevel)
 
   	l=len(self.couple)
   	lg=len(self.sommets)
@@ -226,19 +217,10 @@ Tracer un arc: clic gauche sur chaque sommet
   def hamilton(self):
     self.wm_attributes("-disable",True)
     self.toplevel_dialog=tk.Toplevel(self)
-    self.toplevel_dialog.minsize(600,100)
-    self.toplevel_dialog.wm_title("Graphe hamiltonien")
-    width=self.toplevel_dialog.winfo_screenwidth()
-    height=self.toplevel_dialog.winfo_screenheight()
-    largeure=600
-    hauteure=100
-    x=(width/2)-(largeure/2)
-    y=(height/2)-(hauteure/2)
-    self.toplevel_dialog.geometry('{}x{}+{}+{}'.format(largeure,hauteure,int(x),int(y)))
+    self.toplevel_dialog.minsize(300,100)
 
     self.toplevel_dialog.transient(self)
     self.toplevel_dialog.protocol("WM_DELETE_WINDOW", self.Close_Toplevel)
-    self.toplevel_dialog.bind("<Return>", self.Close_Toplevel)
     lg=len(self.couple)
     if lg>1:
       l=len(self.sommets)
@@ -272,19 +254,10 @@ Tracer un arc: clic gauche sur chaque sommet
   def maxflow(self):
     self.wm_attributes("-disable",True)
     self.toplevel_dialog=tk.Toplevel(self)
-    self.toplevel_dialog.minsize(600,200)
-    self.toplevel_dialog.wm_title("Flow maximal")
-    width=self.toplevel_dialog.winfo_screenwidth()
-    height=self.toplevel_dialog.winfo_screenheight()
-    largeure=600
-    hauteure=200
-    x=(width/2)-(largeure/2)
-    y=(height/2)-(hauteure/2)
-    self.toplevel_dialog.geometry('{}x{}+{}+{}'.format(largeure,hauteure,int(x),int(y)))
+    self.toplevel_dialog.minsize(300,100)
 
     self.toplevel_dialog.transient(self)
     self.toplevel_dialog.protocol("WM_DELETE_WINDOW", self.Close_Toplevel)
-    self.toplevel_dialog.focus()
 
     self.label=tk.Label(self.toplevel_dialog, text='Entrer sommet source: ')
     self.label.grid(row=1)
@@ -336,25 +309,28 @@ Tracer un arc: clic gauche sur chaque sommet
   def matriceAdj(self):
     self.wm_attributes("-disable",True)
     self.toplevel_dialog=tk.Toplevel(self)
-    self.toplevel_dialog.minsize(300,300)
-    self.toplevel_dialog.wm_title("Matrice D'adjacence")
-    width=self.toplevel_dialog.winfo_screenwidth()
-    height=self.toplevel_dialog.winfo_screenheight()
-    largeure=300
-    hauteure=300
-    x=(width/2)-(largeure/2)
-    y=(height/2)-(hauteure/2)
-    self.toplevel_dialog.geometry('{}x{}+{}+{}'.format(largeure,hauteure,int(x),int(y)))
+    self.toplevel_dialog.minsize(300,100)
 
     self.toplevel_dialog.transient(self)
     self.toplevel_dialog.protocol("WM_DELETE_WINDOW", self.Close_Toplevel)
-    self.toplevel_dialog.bind("<Return>", self.Close_Toplevel)
     lg=len(self.couple)
-    if lg>0:
+    if lg>1:
       l=len(self.sommets)
       self.matrice=list()
+      resultat=""
+      trait=""
+      test="  "
+      for i in range(l):
+        resultat+=" "+str(i)
+        trait+=" "+"_"
+      test+=resultat
+      self.label=tk.Label(self.toplevel_dialog, text=test)
+      self.label.pack(side='top')
+      self.label=tk.Label(self.toplevel_dialog, text=trait)
+      self.label.pack(side='top')
       for i in range(l):
         resultat=""
+        resultat+=str(self.sommets[i])+"| "
         self.matrice.append([])
         for j in range(l):
           k=int(0)
@@ -383,28 +359,15 @@ Tracer un arc: clic gauche sur chaque sommet
   def successeur(self):
     self.wm_attributes("-disable",True)
     self.toplevel_dialog=tk.Toplevel(self)
-    self.toplevel_dialog.minsize(650,100)
-    self.toplevel_dialog.wm_title("Successeur d'un sommet")
-    width=self.toplevel_dialog.winfo_screenwidth()
-    height=self.toplevel_dialog.winfo_screenheight()
-    largeure=650
-    hauteure=100
-    x=(width/2)-(largeure/2)
-    y=(height/2)-(hauteure/2)
-    self.toplevel_dialog.geometry('{}x{}+{}+{}'.format(largeure,hauteure,int(x),int(y)))
+    self.toplevel_dialog.minsize(300,100)
 
     self.toplevel_dialog.transient(self)
     self.toplevel_dialog.protocol("WM_DELETE_WINDOW", self.Close_Toplevel)
-    self.toplevel_dialog.focus()
-    self.toplevel_dialog.bind("<Return>", self.Close_suc)
 
     self.label=tk.Label(self.toplevel_dialog, text='Entrer sommet: ')
     self.label.grid(row=1)
     self.valeur=tk.Entry(self.toplevel_dialog)
     self.valeur.grid(row=1,column=1)
-    self.valeur.bind("<Return>", self.Close_suc)
-    self.valeur.bind("<Escape>", self.Close_Toplevel)
-    self.valeur.focus_set()
     
     self.yes_button=ttk.Button(self.toplevel_dialog,text='Retour',width=25,command=self.Close_Toplevel)
     self.yes_button.grid(row=1,column=6)
@@ -427,28 +390,15 @@ Tracer un arc: clic gauche sur chaque sommet
   def predeccesseur(self):
     self.wm_attributes("-disable",True)
     self.toplevel_dialog=tk.Toplevel(self)
-    self.toplevel_dialog.minsize(650,100)
-    self.toplevel_dialog.wm_title("Predecesseur d'un sommet")
-    width=self.toplevel_dialog.winfo_screenwidth()
-    height=self.toplevel_dialog.winfo_screenheight()
-    largeure=650
-    hauteure=100
-    x=(width/2)-(largeure/2)
-    y=(height/2)-(hauteure/2)
-    self.toplevel_dialog.geometry('{}x{}+{}+{}'.format(largeure,hauteure,int(x),int(y)))
+    self.toplevel_dialog.minsize(300,100)
 
     self.toplevel_dialog.transient(self)
     self.toplevel_dialog.protocol("WM_DELETE_WINDOW", self.Close_Toplevel)
-    self.toplevel_dialog.bind("<Return>", self.Close_pred)
-    self.toplevel_dialog.focus()
 
     self.label=tk.Label(self.toplevel_dialog, text='Entrer sommet: ')
     self.label.grid(row=1)
     self.valeur=tk.Entry(self.toplevel_dialog)
     self.valeur.grid(row=1,column=1)
-    self.valeur.bind("<Return>", self.Close_pred)
-    self.valeur.bind("<Escape>", self.Close_Toplevel)
-    self.valeur.focus_set()
     
     self.yes_button=ttk.Button(self.toplevel_dialog,text='Retour',width=25,command=self.Close_Toplevel)
     self.yes_button.grid(row=1,column=6)
@@ -471,34 +421,25 @@ Tracer un arc: clic gauche sur chaque sommet
   def demi_deg_sup(self):
     self.wm_attributes("-disable",True)
     self.toplevel_dialog=tk.Toplevel(self)
-    self.toplevel_dialog.minsize(700,100)
-    self.toplevel_dialog.wm_title("Demi degre supperieur d'un sommet")
-    width=self.toplevel_dialog.winfo_screenwidth()
-    height=self.toplevel_dialog.winfo_screenheight()
-    largeure=700
-    hauteure=100
-    x=(width/2)-(largeure/2)
-    y=(height/2)-(hauteure/2)
-    self.toplevel_dialog.geometry('{}x{}+{}+{}'.format(largeure,hauteure,int(x),int(y)))
+    self.toplevel_dialog.minsize(300,100)
 
     self.toplevel_dialog.transient(self)
     self.toplevel_dialog.protocol("WM_DELETE_WINDOW", self.Close_Toplevel)
-    self.toplevel_dialog.bind("<Return>", self.Close_degre_sup)
-    self.toplevel_dialog.focus()
 
     self.label=tk.Label(self.toplevel_dialog, text='Entrer sommet: ')
     self.label.grid(row=1)
     self.valeur=tk.Entry(self.toplevel_dialog)
     self.valeur.grid(row=1,column=1)
-    self.valeur.bind("<Return>", self.Close_degre_sup)
-    self.valeur.bind("<Escape>", self.Close_Toplevel)
-    self.valeur.focus_set()
     
     self.yes_button=ttk.Button(self.toplevel_dialog,text='Retour',width=25,command=self.Close_Toplevel)
     self.yes_button.grid(row=1,column=6)
     self.yes_button=ttk.Button(self.toplevel_dialog,text='Valider',width=25,command=self.Close_degre_sup)
     self.yes_button.grid(row=1,column=4)
-  
+    
+    """for i in range(3):
+      self.toplevel_dialog_label3=tk.Label(self.toplevel_dialog, text='\n')
+      self.toplevel_dialog_label3.pack()
+  """
   def Close_degre_sup(self):
     if  self.valeur.get() in str(self.sommets):
       k=int(0)
@@ -514,28 +455,15 @@ Tracer un arc: clic gauche sur chaque sommet
   def demi_deg_inf(self):
     self.wm_attributes("-disable",True)
     self.toplevel_dialog=tk.Toplevel(self)
-    self.toplevel_dialog.minsize(700,100)
-    self.toplevel_dialog.wm_title("Demi degre inferieur d'un sommet")
-    width=self.toplevel_dialog.winfo_screenwidth()
-    height=self.toplevel_dialog.winfo_screenheight()
-    largeure=700
-    hauteure=100
-    x=(width/2)-(largeure/2)
-    y=(height/2)-(hauteure/2)
-    self.toplevel_dialog.geometry('{}x{}+{}+{}'.format(largeure,hauteure,int(x),int(y)))
+    self.toplevel_dialog.minsize(300,100)
 
     self.toplevel_dialog.transient(self)
     self.toplevel_dialog.protocol("WM_DELETE_WINDOW", self.Close_Toplevel)
-    self.toplevel_dialog.bind("<Return>", self.Close_degre_inf)
-    self.toplevel_dialog.focus()
 
     self.label=tk.Label(self.toplevel_dialog, text='Entrer sommet: ')
     self.label.grid(row=1)
     self.valeur=tk.Entry(self.toplevel_dialog)
     self.valeur.grid(row=1,column=1)
-    self.valeur.bind("<Return>", self.Close_degre_inf)
-    self.valeur.bind("<Escape>", self.Close_Toplevel)
-    self.valeur.focus_set()
     
     self.yes_button=ttk.Button(self.toplevel_dialog,text='Retour',width=25,command=self.Close_Toplevel)
     self.yes_button.grid(row=1,column=6)
@@ -558,28 +486,15 @@ Tracer un arc: clic gauche sur chaque sommet
   def degres_sommet(self):
   	self.wm_attributes("-disable",True)
   	self.toplevel_dialog=tk.Toplevel(self)
-  	self.toplevel_dialog.minsize(600,100)
-  	self.toplevel_dialog.wm_title("Degre du sommet")
-  	width=self.toplevel_dialog.winfo_screenwidth()
-  	height=self.toplevel_dialog.winfo_screenheight()
-  	largeure=600
-  	hauteure=100
-  	x=(width/2)-(largeure/2)
-  	y=(height/2)-(hauteure/2)
-  	self.toplevel_dialog.geometry('{}x{}+{}+{}'.format(largeure,hauteure,int(x),int(y)))
+  	self.toplevel_dialog.minsize(300,100)
 
   	self.toplevel_dialog.transient(self)
   	self.toplevel_dialog.protocol("WM_DELETE_WINDOW", self.Close_Toplevel)
-  	self.toplevel_dialog.bind("<Return>", self.Close_degre)
-  	self.toplevel_dialog.focus()
 
   	self.label=tk.Label(self.toplevel_dialog, text='Entrer sommet: ')
   	self.label.grid(row=1)
   	self.valeur=tk.Entry(self.toplevel_dialog)
   	self.valeur.grid(row=1,column=1)
-  	self.valeur.bind("<Return>", self.Close_degre)
-  	self.valeur.bind("<Escape>", self.Close_Toplevel)
-  	self.valeur.focus_set()
 
   	self.yes_button=ttk.Button(self.toplevel_dialog,text='Retour',width=25,command=self.Close_Toplevel)
   	self.yes_button.grid(row=1,column=5)
@@ -602,19 +517,10 @@ Tracer un arc: clic gauche sur chaque sommet
   def ordre_graphe(self):
   	self.wm_attributes("-disable",True)
   	self.toplevel_dialog=tk.Toplevel(self)
-  	self.toplevel_dialog.minsize(502,50)
-  	self.toplevel_dialog.wm_title("Ordre du graphe")
-  	width=self.toplevel_dialog.winfo_screenwidth()
-  	height=self.toplevel_dialog.winfo_screenheight()
-  	largeure=502
-  	hauteure=50
-  	x=(width/2)-(largeure/2)
-  	y=(height/2)-(hauteure/2)
-  	self.toplevel_dialog.geometry('{}x{}+{}+{}'.format(largeure,hauteure,int(x),int(y)))
+  	self.toplevel_dialog.minsize(300,100)
 
   	self.toplevel_dialog.transient(self)
   	self.toplevel_dialog.protocol("WM_DELETE_WINDOW", self.Close_Toplevel)
-  	self.toplevel_dialog.bind("<Return>", self.Close_Toplevel)
   	n=len(self.sommets)
   	self.toplevel_dialog_label=tk.Label(self.toplevel_dialog, text='L ordre du graphe est: {}'.format(n))
   	self.toplevel_dialog_label.pack(side='top')
@@ -629,10 +535,11 @@ Tracer un arc: clic gauche sur chaque sommet
 
   
   def sommet(self, event):
-
+    couleur = ["#0093c0", "#0393f0", "#a093c0", "#bb93c0", "#fd12c0","#a933c0", "#bce3c0", "#fabc30","#bdc3c9", "#ba23d0", "#ada3ca","#aae9ca", "#eedd3c", "#ad945a","#ccdabe", "#eb23ce", "#aed3c0" ]
+    col = choice(couleur)
     x,y=event.x,event.y
     if self.point==[]:
-      self.sommet=self.graphe.create_oval(x-10,y-10,x+10,y+10, fill="cyan")
+      self.sommet=self.graphe.create_oval(x-20,y-20,x+20,y+20, fill=col)
       self.numero=self.graphe.create_text(x,y,text="{}".format(self.i))
       self.point.append([event.x,event.y,self.sommet,self.numero,self.i])
       self.sommets.append(self.i)
@@ -644,7 +551,7 @@ Tracer un arc: clic gauche sur chaque sommet
         if element[0]-25 < event.x < element[0]+25 and element[1]-25 < event.y < element[1]+25:
           controle=1
       if controle==0:
-        self.sommet=self.graphe.create_oval(x-10,y-10,x+10,y+10, fill="cyan")
+        self.sommet=self.graphe.create_oval(x-20,y-20,x+20,y+20, fill=col)
         self.numero=self.graphe.create_text(x,y,text="{}".format(self.i))
         self.point.append([event.x,event.y,self.sommet,self.numero,self.i])
         self.sommets.append(self.i)
@@ -664,41 +571,42 @@ Tracer un arc: clic gauche sur chaque sommet
 
       self.wm_attributes("-disable",True)
       self.toplevel_dialog=tk.Toplevel(self)
-      self.toplevel_dialog.minsize(502,100)
-      self.toplevel_dialog.wm_title("Arc")
-      width=self.toplevel_dialog.winfo_screenwidth()
-      height=self.toplevel_dialog.winfo_screenheight()
-      largeure=502
-      hauteure=100
-      x=(width/2)-(largeure/2)
-      y=(height/2)-(hauteure/2)
-      self.toplevel_dialog.geometry('{}x{}+{}+{}'.format(largeure,hauteure,int(x),int(y)))
+      self.toplevel_dialog.minsize(300,100)
 
       self.toplevel_dialog.transient(self)
       self.toplevel_dialog.protocol("WM_DELETE_WINDOW", self.Close_Toplevel)
-      self.toplevel_dialog.bind("<Return>", self.Close_arc)
-      self.toplevel_dialog.focus()
 
       self.label=tk.Label(self.toplevel_dialog, text='Entrer la distance entre le sommet {} et le sommet {}: '.format(self.temp[0][4],self.temp[1][4]))
       self.label.pack(side='top')
       self.valeur=tk.Entry(self.toplevel_dialog)
       self.valeur.pack(side='top')
-      self.valeur.bind("<Return>", self.Close_arc)
-      self.valeur.bind("<Escape>", self.Close_Toplevel)
-      self.valeur.focus_set()
+
 
       self.yes_button=ttk.Button(self.toplevel_dialog,text='Retour',width=25,command=self.Close_Toplevel)
       self.yes_button.pack(side='right',fill='x',expand=True)
       self.yes_button=ttk.Button(self.toplevel_dialog,text='Valider',width=25,command=self.Close_arc)
       self.yes_button.pack(side='right',fill='x',expand=True)
+      
 
-  def Close_arc (self,event=None):
-    
+
+
+  def Close_arc (self, event=None):
+    #x,y=event.x,event.y
     if self.temp[0][0] < self.temp[1][0]:
 
       a=[self.temp[0][0]+10,self.temp[0][1]]
       b=[self.temp[1][0]-10,self.temp[1][1]]
       self.graphe.create_line(a,b,arrow="last")
+
+
+      #distancex = (a+b)/2
+      #distancex = int(distancex)
+      #distancex = self.valeur.get()
+     # self.sommet=self.graphe.create_oval(self.temp[0][0]-20,self.temp[0][1]-20,self.temp[0][0]+10,self.temp[0][1]+10, fill="#fff")
+      #self.numero=self.graphe.create_text((self.temp[0][0],self.temp[0][1]),(self.temp[1][0],self.temp[1][1]),text="{}".format(distancex))
+
+      
+
       try:
         self.entier=int(self.valeur.get())
       except ValueError:
@@ -714,11 +622,16 @@ Tracer un arc: clic gauche sur chaque sommet
       self.graphe.delete(self.temp[0][2])
       self.graphe.delete(self.temp[0][3])
       self.graphe.create_oval(self.temp[0][0]-10,self.temp[0][1]-25,self.temp[0][0]+1,self.temp[0][1])
-      self.graphe.create_oval(self.temp[0][0]-10,self.temp[0][1]-10,self.temp[0][0]+10,self.temp[0][1]+10,fill="cyan")
+      self.graphe.create_oval(self.temp[0][0]-10,self.temp[0][1]-10,self.temp[0][0]+10,self.temp[0][1]+10,fill="#0093c0")
       self.graphe.create_text(self.temp[0][0],self.temp[0][1],text="{}".format(self.temp[0][4]))
       a=(self.temp[0][0],self.temp[0][1]-10.5)
       b=(self.temp[0][0],self.temp[0][1]-10)
       self.graphe.create_line(a,b,arrow="last")
+
+      #distancex = self.valeur.get()
+      #self.sommet=self.graphe.create_oval(self.temp[0][0]-10,self.temp[0][1]-25,self.temp[0][0]+1,self.temp[0][1], fill="#000")
+      #self.numero=self.graphe.create_text(self.temp[0][0],self.temp[0][1],text="{}".format(distancex))
+
       try:
         self.entier=int(self.valeur.get())
       except ValueError:
